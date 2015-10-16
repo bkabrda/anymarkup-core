@@ -13,7 +13,7 @@ setup(
     author_email='slavek.kabrda@gmail.com',
     url='https://github.com/bkabrda/anymarkup-core',
     license='BSD',
-    packages=['anymarkup-core'],
+    packages=['anymarkup_core'],
     install_requires=open('requirements.txt').read().splitlines(),
     classifiers=[
         'Development Status :: 4 - Beta',

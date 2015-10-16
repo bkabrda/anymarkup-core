@@ -141,8 +141,8 @@ def serialize(struct, format, target=None, encoding='utf-8'):
         fname = target.name
 
     fmt = _get_format(format, fname)
-    serialized = _do_serialize(struct, fmt, encoding)
     try:
+        serialized = _do_serialize(struct, fmt, encoding)
         if target is None:
             return serialized
         else:
@@ -175,8 +175,8 @@ def serialize_file(struct, path, format=None, encoding='utf-8'):
 
 def _check_lib_installed(fmt, action):
     if fmt_to_lib[fmt][0] is None:
-        raise AnyMarkupError('Can\'t {action} {fmt}: {name} not installed'.
-                             format(action=action, fmt=fmt, name=fmt_to_lib[fmt][1]))
+        raise ImportError('Can\'t {action} {fmt}: {name} not installed'.
+                          format(action=action, fmt=fmt, name=fmt_to_lib[fmt][1]))
 
 
 def _do_parse(inp, fmt, encoding, force_types):
@@ -435,6 +435,6 @@ def represent_ordereddict(dumper, data):
         values.append(node_item)
     return node
 
-
-yaml.SafeLoader.add_constructor(u'tag:yaml.org,2002:omap', construct_ordereddict)
-yaml.SafeDumper.add_representer(collections.OrderedDict, represent_ordereddict)
+if yaml is not None:
+    yaml.SafeLoader.add_constructor(u'tag:yaml.org,2002:omap', construct_ordereddict)
+    yaml.SafeDumper.add_representer(collections.OrderedDict, represent_ordereddict)

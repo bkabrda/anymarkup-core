@@ -15,7 +15,7 @@ anymarkup
 
 This is the core library that implements functionality of https://github.com/bkabrda/anymarkup.
 You can install this if you only want to use a subset of anymarkup parsers. For example, you
-can do this:
+can do this::
 
   $ pip install anymarkup-core PyYAML
   $ python -c "import anymarkup_core; anymarkup_core.parse('foo: bar')"
