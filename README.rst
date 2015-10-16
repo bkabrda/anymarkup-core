@@ -1,5 +1,7 @@
-anymarkup
-=========
+anymarkup-core
+==============
+
+Note: work in progress! I have yet to switch anymarkup to using anymarkup-core. Stay tuned.
 
 .. image:: https://travis-ci.org/bkabrda/anymarkup-core.svg?branch=master
    :target: https://travis-ci.org/bkabrda/anymarkup-core
