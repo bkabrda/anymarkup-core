@@ -5,10 +5,19 @@ import json
 import os
 import re
 
-import configobj
 import six
-import xmltodict
-import yaml
+try:
+    import configobj
+except ImportError:
+    configobj = None
+try:
+    import xmltodict
+except ImportError:
+    xmltodict = None
+try:
+    import yaml
+except ImportError:
+    yaml = None
 
 
 __all__ = ['AnyMarkupError', 'parse', 'parse_file', 'serialize', 'serialize_file']
@@ -16,6 +25,10 @@ __version__ = '0.5.0'
 
 
 fmt_to_exts = {'ini': ['ini'], 'json': ['json'], 'xml': ['xml'], 'yaml': ['yaml', 'yml']}
+fmt_to_lib = {'ini': (configobj, 'configobj'),
+              'json': (json, 'json'),
+              'xml': (xmltodict, 'xmltodict'),
+              'yaml': (yaml, 'PyYAML')}
 
 
 class AnyMarkupError(Exception):
@@ -160,6 +173,12 @@ def serialize_file(struct, path, format=None, encoding='utf-8'):
         raise AnyMarkupError(e)
 
 
+def _check_lib_installed(fmt, action):
+    if fmt_to_lib[fmt][0] is None:
+        raise AnyMarkupError('Can\'t {action} {fmt}: {name} not installed'.
+                             format(action=action, fmt=fmt, name=fmt_to_lib[fmt][1]))
+
+
 def _do_parse(inp, fmt, encoding, force_types):
     """Actually parse input.
 
@@ -178,6 +197,7 @@ def _do_parse(inp, fmt, encoding, force_types):
         various sorts of errors raised by used libraries while parsing
     """
     res = {}
+    _check_lib_installed(fmt, 'parse')
 
     if fmt == 'ini':
         cfg = configobj.ConfigObj(inp, encoding=encoding)
@@ -215,6 +235,7 @@ def _do_serialize(struct, fmt, encoding):
         various sorts of errors raised by libraries while serializing
     """
     res = None
+    _check_lib_installed(fmt, 'serialize')
 
     if fmt == 'ini':
         config = configobj.ConfigObj(encoding=encoding)
