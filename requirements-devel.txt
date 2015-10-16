@@ -1,0 +1,5 @@
+-r requirements.txt
+configobj
+pytest
+PyYAML
+xmltodict

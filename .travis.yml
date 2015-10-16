@@ -1,0 +1,17 @@
+language: python
+python:
+- "2.7"
+- "3.3"
+- "3.4"
+- "pypy"
+- "pypy3"
+
+install:
+- pip install -r requirements-devel.txt
+- pip install coveralls pytest-cov
+
+script:
+- py.test test --cov anymarkup_core
+
+after_success:
+- coveralls
