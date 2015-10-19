@@ -1,8 +1,6 @@
 anymarkup-core
 ==============
 
-Note: work in progress! I have yet to switch anymarkup to using anymarkup-core. Stay tuned.
-
 .. image:: https://travis-ci.org/bkabrda/anymarkup-core.svg?branch=master
    :target: https://travis-ci.org/bkabrda/anymarkup-core
    :alt: Build Status
@@ -22,5 +20,5 @@ can do this::
   $ pip install anymarkup-core PyYAML
   $ python -c "import anymarkup_core; anymarkup_core.parse('foo: bar')"
 
-... and you don't need e.g. xmltodict installed. You can use anymarkup-core in the same way you
-use anymarkup, except you have to import from `anymarkup_core`, obviously.
+... and you don't need `xmltodict` installed, for example. You can use anymarkup-core
+in the same way you use anymarkup, except you have to import from `anymarkup_core`, obviously.
