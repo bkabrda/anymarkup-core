@@ -18,7 +18,7 @@ You can install this if you only want to use a subset of anymarkup parsers. For 
 can do this::
 
   $ pip install anymarkup-core PyYAML
-  $ python -c "import anymarkup_core; anymarkup_core.parse('foo: bar')"
+  $ python -c "import anymarkup_core; print(anymarkup_core.parse('foo: bar'))"
 
 ... and you don't need `xmltodict` installed, for example. You can use anymarkup-core
 in the same way you use anymarkup, except you have to import from `anymarkup_core`, obviously.
