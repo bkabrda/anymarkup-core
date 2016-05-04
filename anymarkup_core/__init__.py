@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import collections
+import datetime
 import io
 import json
 import os
@@ -10,6 +11,10 @@ try:
     import configobj
 except ImportError:
     configobj = None
+try:
+    import toml
+except ImportError:
+    toml = None
 try:
     import xmltodict
 except ImportError:
@@ -24,11 +29,17 @@ __all__ = ['AnyMarkupError', 'parse', 'parse_file', 'serialize', 'serialize_file
 __version__ = '0.5.0'
 
 
-fmt_to_exts = {'ini': ['ini'], 'json': ['json'], 'xml': ['xml'], 'yaml': ['yaml', 'yml']}
+fmt_to_exts = {'ini': ['ini'], 'json': ['json'], 'toml': ['toml'], 'xml': ['xml'],
+               'yaml': ['yaml', 'yml']}
 fmt_to_lib = {'ini': (configobj, 'configobj'),
               'json': (json, 'json'),
+              'toml': (toml, 'toml'),
               'xml': (xmltodict, 'xmltodict'),
               'yaml': (yaml, 'PyYAML')}
+
+
+def _is_utf8(enc_str):
+    return enc_str.lower() in ['utf8', 'utf-8']
 
 
 class AnyMarkupError(Exception):
@@ -141,6 +152,7 @@ def serialize(struct, format, target=None, encoding='utf-8'):
         fname = target.name
 
     fmt = _get_format(format, fname)
+
     try:
         serialized = _do_serialize(struct, fmt, encoding)
         if target is None:
@@ -207,6 +219,10 @@ def _do_parse(inp, fmt, encoding, force_types):
             # python 3 json only reads from unicode objects
             inp = io.TextIOWrapper(inp, encoding=encoding)
         res = json.load(inp, encoding=encoding)
+    elif fmt == 'toml':
+        if not _is_utf8(encoding):
+            raise AnyMarkupError('toml is always utf-8 encoded according to specification')
+        res = toml.load(inp)
     elif fmt == 'xml':
         res = xmltodict.parse(inp, encoding=encoding)
     elif fmt == 'yaml':
@@ -248,6 +264,10 @@ def _do_serialize(struct, fmt, encoding):
         #  not in \u sequences
         res = json.dumps(struct, indent=2, separators=(',', ': '), ensure_ascii=False).\
                 encode(encoding)
+    elif fmt == 'toml':
+        if not _is_utf8(encoding):
+            raise AnyMarkupError('toml must always be utf-8 encoded according to specification')
+        res = toml.dumps(struct).encode(encoding)
     elif fmt == 'xml':
         # passing encoding argument doesn't encode, just sets the xml property
         res = xmltodict.unparse(struct, pretty=True, encoding='utf-8').encode('utf-8')
@@ -291,6 +311,9 @@ def _ensure_proper_types(struct, encoding, force_types):
     elif isinstance(struct, six.binary_type):
         res = struct.decode(encoding)
     elif isinstance(struct, (six.text_type, type(None), type(True), six.integer_types, float)):
+        res = struct
+    elif isinstance(struct, datetime.datetime):
+        # toml can parse datetime natively
         res = struct
     else:
         raise AnyMarkupError('internal error - unexpected type {0} in parsed markup'.

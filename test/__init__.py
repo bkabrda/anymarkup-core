@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict
+from copy import deepcopy
+from datetime import datetime
 
 example_ini = u"""\
 [foo]
@@ -28,6 +30,22 @@ example_json = u"""\
     }
   }
 }"""
+
+
+# toml is special, since it e.g. only allows lists to have same types of values
+example_toml = u"""\
+title = "TOML Example"
+
+[foo]
+name = "bar"
+dob = 1987-07-05T17:45:00Z
+
+[spam]
+spam2 = "spam"
+ham = [1, 2, 3]
+  [spam.spam]
+  foo = [["bar"]]
+"""
 
 
 example_xml = u"""\
@@ -96,6 +114,16 @@ example_as_dict = {
     }
 }
 
+toml_example_as_dict = {
+    u'foo': {
+        u'dob': datetime(1987, 7, 5, 17, 45),
+        u'name': u'bar'},
+    u'spam': {u'ham': [1, 2, 3],
+              u'spam': {u'foo': [[u'bar']]},
+              u'spam2': u'spam'},
+    u'title': u'TOML Example'
+}
+
 
 # ini loading doesn't yield any ints/floats/NoneTypes/bools, so it's ideal
 #  to test our custom convertors; for other types, some of these values
@@ -118,6 +146,15 @@ types_json = u"""
       "d": true,
     }
 }"""
+
+
+types_toml = u"""
+[x]
+a=1
+b=1.1
+c=1987-07-05T17:45:00Z
+d=true
+"""
 
 
 types_yaml = u"""
@@ -149,6 +186,10 @@ types_as_struct_with_objects = {
 }
 
 
+toml_types_as_struct_with_objects = deepcopy(types_as_struct_with_objects)
+toml_types_as_struct_with_objects['x']['c'] = datetime(1987, 7, 5, 17, 45)
+
+
 types_as_struct_with_strings = {
     'x': {
         'a': "1",
@@ -157,3 +198,6 @@ types_as_struct_with_strings = {
         'd': "True",
     }
 }
+
+toml_types_as_struct_with_strings = deepcopy(types_as_struct_with_strings)
+toml_types_as_struct_with_strings['x']['c'] = '1987-07-05 17:45:00'

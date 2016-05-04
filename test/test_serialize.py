@@ -30,13 +30,14 @@ class TestSerialize(object):
     @pytest.mark.parametrize(('struct', 'format'), [
         (example_as_dict, 'ini'),
         (example_as_dict, 'json'),
+        (toml_example_as_dict, 'toml'),
         (example_as_ordered_dict, 'xml'),
         (example_as_dict, 'yaml'),
         (example_as_ordered_dict, 'yaml'),
     ])
     def test_serialize_basic(self, struct, format):
         serialized = serialize(struct, format)
-        parsed_back = parse(serialized)
+        parsed_back = parse(serialized, format)
         assert parsed_back == struct
         assert type(parsed_back) == type(struct)
 
@@ -53,17 +54,18 @@ class TestSerialize(object):
         with pytest.raises(AnyMarkupError):
             serialize(example_as_dict, 'json', fhandle)
 
-    @pytest.mark.parametrize(('struct', 'fname'), [
-        (example_as_dict, 'example.ini'),
-        (example_as_dict, 'example.json'),
-        (example_as_ordered_dict, 'example.xml'),
-        (example_as_dict, 'example.yaml'),
-        (example_as_ordered_dict, 'example_ordered.yaml'),
+    @pytest.mark.parametrize(('struct', 'fmt', 'fname'), [
+        (example_as_dict, None, 'example.ini'),
+        (example_as_dict, None, 'example.json'),
+        (toml_example_as_dict, 'toml', 'example.toml'),
+        (example_as_ordered_dict, None, 'example.xml'),
+        (example_as_dict, None, 'example.yaml'),
+        (example_as_ordered_dict, None, 'example_ordered.yaml'),
     ])
-    def test_serialize_file_basic(self, struct, fname, tmpdir):
+    def test_serialize_file_basic(self, struct, fmt, fname, tmpdir):
         f = os.path.join(str(tmpdir), fname)
         serialize_file(struct, f)
-        parsed_back = parse(self._read_decode(f))
+        parsed_back = parse(self._read_decode(f), fmt)
         assert parsed_back == struct
         assert type(parsed_back) == type(struct)
 

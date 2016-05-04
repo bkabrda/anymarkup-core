@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 import io
 import os
 
@@ -22,23 +23,24 @@ class TestParse(object):
             for i in struct:
                 self.assert_unicode(i)
         elif isinstance(struct, (six.string_types, type(None), type(True), \
-                six.integer_types, float)):
+                six.integer_types, float, datetime)):
             pass
         else:
             raise AssertionError('Unexpected type {0} in parsed structure'.format(type(struct)))
 
-    @pytest.mark.parametrize(('str', 'expected'), [
-        ('', {}),
-        ('{}', {}),
-        ('[]', []),
-        (example_ini, example_as_dict),
-        (example_json, example_as_dict),
-        (example_xml, example_as_ordered_dict),
-        (example_yaml_map, example_as_dict),
-        (example_yaml_omap, example_as_ordered_dict),
+    @pytest.mark.parametrize(('str', 'fmt', 'expected'), [
+        ('', None, {}),
+        ('{}', None, {}),
+        ('[]', None, []),
+        (example_ini, None, example_as_dict),
+        (example_json, None, example_as_dict),
+        (example_toml, 'toml', toml_example_as_dict),  # we can't tell toml from ini
+        (example_xml, None, example_as_ordered_dict),
+        (example_yaml_map, None, example_as_dict),
+        (example_yaml_omap, None, example_as_ordered_dict),
     ])
-    def test_parse_basic(self, str, expected):
-        parsed = parse(str)
+    def test_parse_basic(self, str, fmt, expected):
+        parsed = parse(str, fmt)
         assert parsed == expected
         assert type(parsed) == type(expected)
         self.assert_unicode(parsed)
@@ -50,6 +52,7 @@ class TestParse(object):
         ('# comment\n' + example_json, example_as_dict),
         ('# comment\n' + example_yaml_map, example_as_dict),
         ('# comment\n' + example_yaml_omap, example_as_ordered_dict),
+        # no test for toml, since it's not auto-recognized
     ])
     def test_parse_recognizes_comments_in_ini_json_yaml(self, str, expected):
         parsed = parse(str)
@@ -57,33 +60,37 @@ class TestParse(object):
         assert type(parsed) == type(expected)
         self.assert_unicode(parsed)
 
-    @pytest.mark.parametrize('str', [
-        types_ini,
-        types_json,
-        types_xml,
-        types_yaml,
+    @pytest.mark.parametrize(('str, fmt, expected'), [
+        (types_ini, None, types_as_struct_with_objects),
+        (types_json, None, types_as_struct_with_objects),
+        (types_toml, 'toml', toml_types_as_struct_with_objects),
+        (types_xml, None, types_as_struct_with_objects),
+        (types_yaml, None, types_as_struct_with_objects),
     ])
-    def test_parse_force_types_true(self, str):
-        assert parse(str) == types_as_struct_with_objects
+    def test_parse_force_types_true(self, str, fmt, expected):
+        assert parse(str, fmt) == expected
 
-    @pytest.mark.parametrize('str', [
-        types_ini,
-        types_json,
-        types_xml,
-        types_yaml,
+    @pytest.mark.parametrize(('str', 'fmt', 'expected'), [
+        (types_ini, None, types_as_struct_with_strings),
+        (types_json, None, types_as_struct_with_strings),
+        (types_toml, 'toml', toml_types_as_struct_with_strings),
+        (types_xml, None, types_as_struct_with_strings),
+        (types_yaml, None, types_as_struct_with_strings),
     ])
-    def test_parse_force_types_false(self, str):
-        assert parse(str, force_types=False) == types_as_struct_with_strings
+    def test_parse_force_types_false(self, str, fmt, expected):
+        assert parse(str, fmt, force_types=False) == expected
 
-    @pytest.mark.parametrize(('str', 'expected'), [
+    @pytest.mark.parametrize(('str', 'fmt', 'expected'), [
         # Note: the expected result is backend-specific
-        (types_ini, {'x': {'a': '1', 'b': '1.1', 'c': 'None', 'd': 'True'}}),
-        (types_json, {'x': {'a': 1, 'b': 1.1, 'c': None, 'd': True}}),
-        (types_xml, {'x': {'a': '1', 'b': '1.1', 'c': 'None', 'd': 'True'}}),
-        (types_yaml, {'x': {'a': 1, 'b': 1.1, 'c': 'None', 'd': True}}),
+        (types_ini, None, {'x': {'a': '1', 'b': '1.1', 'c': 'None', 'd': 'True'}}),
+        (types_json, None, {'x': {'a': 1, 'b': 1.1, 'c': None, 'd': True}}),
+        (types_toml, 'toml', {'x': {'a': 1, 'b': 1.1, 'c': datetime(1987, 7, 5, 17, 45),
+                                    'd': True}}),
+        (types_xml, None, {'x': {'a': '1', 'b': '1.1', 'c': 'None', 'd': 'True'}}),
+        (types_yaml, None, {'x': {'a': 1, 'b': 1.1, 'c': 'None', 'd': True}}),
     ])
-    def test_parse_force_types_none(self, str, expected):
-        assert parse(str, force_types=None) == expected
+    def test_parse_force_types_none(self, str, fmt, expected):
+        assert parse(str, fmt, force_types=None) == expected
 
     def test_parse_works_with_bytes_yielding_file(self):
         f = open(os.path.join(self.fixtures, 'empty.ini'), 'rb')
@@ -104,10 +111,12 @@ class TestParse(object):
         # TODO: some parsers allow empty files, others don't - this should be made consistent
         ('empty.ini', {}),
         ('empty.json', AnyMarkupError),
+        ('empty.toml', {}),
         ('empty.xml', AnyMarkupError),
         ('empty.yaml', {}),
         ('example.ini', example_as_dict),
         ('example.json', example_as_dict),
+        ('example.toml', toml_example_as_dict),
         ('example.xml', example_as_ordered_dict),
         ('example.yaml', example_as_dict),
     ])
