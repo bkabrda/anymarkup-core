@@ -3,4 +3,5 @@ configobj
 flexmock
 pytest
 PyYAML
+toml
 xmltodict
