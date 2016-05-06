@@ -5,6 +5,7 @@ import io
 import json
 import os
 import re
+import traceback
 
 import six
 try:
@@ -96,6 +97,8 @@ def parse(inp, format=None, encoding='utf-8', force_types=True):
         res = _do_parse(proper_inp, fmt, encoding, force_types)
     except Exception as e:
         # I wish there was only Python 3 and I could just use "raise ... from e"
+        if six.PY2:
+            traceback.print_exc()
         raise AnyMarkupError(e)
     if res is None:
         res = {}
@@ -124,6 +127,8 @@ def parse_file(path, format=None, encoding='utf-8', force_types=True):
         with open(path, 'rb') as f:
             return parse(f, format, encoding, force_types)
     except EnvironmentError as e:
+        if six.PY2:
+            traceback.print_exc()
         raise AnyMarkupError(e)
 
 
@@ -160,6 +165,8 @@ def serialize(struct, format, target=None, encoding='utf-8'):
         else:
             return target.write(serialized)
     except Exception as e:
+        if six.PY2:
+            traceback.print_exc()
         raise AnyMarkupError(e)
 
 
@@ -182,6 +189,8 @@ def serialize_file(struct, path, format=None, encoding='utf-8'):
         with open(path, 'wb') as f:
             return serialize(struct, format, f, encoding)
     except EnvironmentError as e:
+        if six.PY2:
+            traceback.print_exc()
         raise AnyMarkupError(e)
 
 
