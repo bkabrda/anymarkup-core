@@ -37,7 +37,7 @@ example_toml = u"""\
 title = "TOML Example"
 
 [foo]
-name = "bar"
+name = "barů"
 dob = 1987-07-05T17:45:00Z
 
 [spam]
@@ -117,7 +117,7 @@ example_as_dict = {
 toml_example_as_dict = {
     u'foo': {
         u'dob': datetime(1987, 7, 5, 17, 45),
-        u'name': u'bar'},
+        u'name': u'barů'},
     u'spam': {u'ham': [1, 2, 3],
               u'spam': {u'foo': [[u'bar']]},
               u'spam2': u'spam'},

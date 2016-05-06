@@ -222,7 +222,10 @@ def _do_parse(inp, fmt, encoding, force_types):
     elif fmt == 'toml':
         if not _is_utf8(encoding):
             raise AnyMarkupError('toml is always utf-8 encoded according to specification')
-        res = toml.loads(inp.read().decode(encoding))
+        if six.PY3:
+            # python 3 toml prefers unicode objects
+            inp = io.TextIOWrapper(inp, encoding=encoding)
+        res = toml.load(inp)
     elif fmt == 'xml':
         res = xmltodict.parse(inp, encoding=encoding)
     elif fmt == 'yaml':
