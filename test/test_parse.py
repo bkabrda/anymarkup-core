@@ -34,6 +34,7 @@ class TestParse(object):
         ('[]', None, []),
         (example_ini, None, example_as_dict),
         (example_json, None, example_as_dict),
+        (example_json5, 'json5', example_as_dict),
         (example_toml, 'toml', toml_example_as_dict),  # we can't tell toml from ini
         (example_xml, None, example_as_ordered_dict),
         (example_yaml_map, None, example_as_dict),
@@ -50,6 +51,7 @@ class TestParse(object):
         ('# comment\n', {}),
         ('# comment\n' + example_ini, example_as_dict),
         ('# comment\n' + example_json, example_as_dict),
+        ('# comment\n' + example_json5, example_as_dict),
         ('# comment\n' + example_yaml_map, example_as_dict),
         ('# comment\n' + example_yaml_omap, example_as_ordered_dict),
         # no test for toml, since it's not auto-recognized
@@ -63,6 +65,7 @@ class TestParse(object):
     @pytest.mark.parametrize(('str, fmt, expected'), [
         (types_ini, None, types_as_struct_with_objects),
         (types_json, None, types_as_struct_with_objects),
+        (types_json5, 'json5', types_as_struct_with_objects),
         (types_toml, 'toml', toml_types_as_struct_with_objects),
         (types_xml, None, types_as_struct_with_objects),
         (types_yaml, None, types_as_struct_with_objects),
@@ -73,6 +76,7 @@ class TestParse(object):
     @pytest.mark.parametrize(('str', 'fmt', 'expected'), [
         (types_ini, None, types_as_struct_with_strings),
         (types_json, None, types_as_struct_with_strings),
+        (types_json5, 'json5', types_as_struct_with_strings),
         (types_toml, 'toml', toml_types_as_struct_with_strings),
         (types_xml, None, types_as_struct_with_strings),
         (types_yaml, None, types_as_struct_with_strings),
@@ -84,6 +88,7 @@ class TestParse(object):
         # Note: the expected result is backend-specific
         (types_ini, None, {'x': {'a': '1', 'b': '1.1', 'c': 'None', 'd': 'True'}}),
         (types_json, None, {'x': {'a': 1, 'b': 1.1, 'c': None, 'd': True}}),
+        (types_json5, 'json5', {'x': {'a': 1, 'b': 1.1, 'c': None, 'd': True}}),
         (types_toml, 'toml', {'x': {'a': 1, 'b': 1.1, 'c': datetime(1987, 7, 5, 17, 45),
                                     'd': True}}),
         (types_xml, None, {'x': {'a': '1', 'b': '1.1', 'c': 'None', 'd': 'True'}}),
@@ -111,11 +116,13 @@ class TestParse(object):
         # TODO: some parsers allow empty files, others don't - this should be made consistent
         ('empty.ini', {}),
         ('empty.json', AnyMarkupError),
+        ('empty.json5', AnyMarkupError),
         ('empty.toml', {}),
         ('empty.xml', AnyMarkupError),
         ('empty.yaml', {}),
         ('example.ini', example_as_dict),
         ('example.json', example_as_dict),
+        ('example.json5', example_as_dict),
         ('example.toml', toml_example_as_dict),
         ('example.xml', example_as_ordered_dict),
         ('example.yaml', example_as_dict),

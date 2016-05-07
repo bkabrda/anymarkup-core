@@ -32,6 +32,18 @@ example_json = u"""\
 }"""
 
 
+example_json5 = u"""\
+{foo: {
+    bar: 'ěšč',
+    spam: 1,
+    baz: 1.1,
+    blah: {
+        blahblah: [true, "text4",],
+        nothing: null
+    }
+}}"""
+
+
 # toml is special, since it e.g. only allows lists to have same types of values
 example_toml = u"""\
 title = "TOML Example"
@@ -146,6 +158,9 @@ types_json = u"""
       "d": true,
     }
 }"""
+
+
+types_json5 = types_json
 
 
 types_toml = u"""

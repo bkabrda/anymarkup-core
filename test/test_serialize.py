@@ -30,6 +30,7 @@ class TestSerialize(object):
     @pytest.mark.parametrize(('struct', 'format'), [
         (example_as_dict, 'ini'),
         (example_as_dict, 'json'),
+        (example_as_dict, 'json5'),
         (toml_example_as_dict, 'toml'),
         (example_as_ordered_dict, 'xml'),
         (example_as_dict, 'yaml'),
@@ -57,6 +58,7 @@ class TestSerialize(object):
     @pytest.mark.parametrize(('struct', 'fmt', 'fname'), [
         (example_as_dict, None, 'example.ini'),
         (example_as_dict, None, 'example.json'),
+        (example_as_dict, 'json5', 'example.json5'),
         (toml_example_as_dict, 'toml', 'example.toml'),
         (example_as_ordered_dict, None, 'example.xml'),
         (example_as_dict, None, 'example.yaml'),

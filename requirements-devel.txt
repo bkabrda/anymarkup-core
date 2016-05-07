@@ -1,5 +1,6 @@
 -r requirements.txt
 configobj
+json5
 flexmock
 pytest
 PyYAML

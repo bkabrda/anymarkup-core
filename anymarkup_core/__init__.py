@@ -13,6 +13,10 @@ try:
 except ImportError:
     configobj = None
 try:
+    import json5
+except ImportError:
+    json5 = None
+try:
     import toml
 except ImportError:
     toml = None
@@ -30,10 +34,15 @@ __all__ = ['AnyMarkupError', 'parse', 'parse_file', 'serialize', 'serialize_file
 __version__ = '0.6.2'
 
 
-fmt_to_exts = {'ini': ['ini'], 'json': ['json'], 'toml': ['toml'], 'xml': ['xml'],
+fmt_to_exts = {'ini': ['ini'],
+               'json': ['json'],
+               'json5': ['json5'],
+               'toml': ['toml'],
+               'xml': ['xml'],
                'yaml': ['yaml', 'yml']}
 fmt_to_lib = {'ini': (configobj, 'configobj'),
               'json': (json, 'json'),
+              'json5': (json5, 'json5'),
               'toml': (toml, 'toml'),
               'xml': (xmltodict, 'xmltodict'),
               'yaml': (yaml, 'PyYAML')}
@@ -224,6 +233,10 @@ def _do_parse(inp, fmt, encoding, force_types):
             # python 3 json only reads from unicode objects
             inp = io.TextIOWrapper(inp, encoding=encoding)
         res = json.load(inp, encoding=encoding)
+    elif fmt == 'json5':
+        if six.PY3:
+            inp = io.TextIOWrapper(inp, encoding=encoding)
+        res = json5.load(inp, encoding=encoding)
     elif fmt == 'toml':
         if not _is_utf8(encoding):
             raise AnyMarkupError('toml is always utf-8 encoded according to specification')
@@ -266,12 +279,14 @@ def _do_serialize(struct, fmt, encoding):
         for k, v in struct.items():
             config[k] = v
         res = b'\n'.join(config.write())
-    elif fmt == 'json':
+    elif fmt in ['json', 'json5']:
         # specify separators to get rid of trailing whitespace
         # specify ensure_ascii to make sure unicode is serialized in \x... sequences,
         #  not in \u sequences
-        res = json.dumps(struct, indent=2, separators=(',', ': '), ensure_ascii=False).\
-                encode(encoding)
+        res = (json if fmt == 'json' else json5).dumps(struct,
+                                                       indent=2,
+                                                       separators=(',', ': '),
+                                                       ensure_ascii=False).encode(encoding)
     elif fmt == 'toml':
         if not _is_utf8(encoding):
             raise AnyMarkupError('toml must always be utf-8 encoded according to specification')
@@ -428,6 +443,7 @@ def _guess_fmt_from_bytes(inp):
         else:
             for l in stripped.splitlines():
                 line = l.strip()
+                # TODO: no comments in json, C-style comments in json5
                 if not line.startswith(b'#') and line:
                     break
             # json, ini or yaml => skip comments and then determine type
