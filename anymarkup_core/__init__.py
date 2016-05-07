@@ -340,12 +340,12 @@ def _ensure_proper_types(struct, encoding, force_types):
         res = struct
     else:
         raise AnyMarkupError('internal error - unexpected type {0} in parsed markup'.
-            format(type(struct)))
+                             format(type(struct)))
 
     if force_types and isinstance(res, six.text_type):
         res = _recognize_basic_types(res)
-    elif not (force_types or \
-            isinstance(res, (dict, collections.OrderedDict, list, six.text_type))):
+    elif not (force_types or
+              isinstance(res, (dict, collections.OrderedDict, list, six.text_type))):
         res = six.text_type(res)
 
     return res
