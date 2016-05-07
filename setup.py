@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='anymarkup-core',
-    version='0.6.1',
+    version='0.6.2',
     description='Core library for anymarkup',
     long_description=''.join(open('README.rst').readlines()),
     keywords='xml, yaml, json, ini',
