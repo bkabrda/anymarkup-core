@@ -435,7 +435,7 @@ def _guess_fmt_from_bytes(inp):
     ini_section_header_re = re.compile(b'^\[([\w-]+)\]')
 
     if len(stripped) == 0:
-        # this can be anything, so choose json, for example
+        # this can be anything, so choose yaml, for example
         fmt = 'yaml'
     else:
         if stripped.startswith(b'<'):
@@ -443,7 +443,8 @@ def _guess_fmt_from_bytes(inp):
         else:
             for l in stripped.splitlines():
                 line = l.strip()
-                # TODO: no comments in json, C-style comments in json5
+                # there are C-style comments in json5, but we don't auto-detect it,
+                #  so it doesn't matter here
                 if not line.startswith(b'#') and line:
                     break
             # json, ini or yaml => skip comments and then determine type
