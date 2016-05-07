@@ -44,7 +44,7 @@ def _is_utf8(enc_str):
 
 
 class AnyMarkupError(Exception):
-    def __init__(self, cause):
+    def __init__(self, cause, original_tb=''):
         """Wrapper for all errors that occur during anymarkup calls.
 
         Args:
@@ -52,12 +52,16 @@ class AnyMarkupError(Exception):
         """
         super(AnyMarkupError, self).__init__()
         self.cause = cause
+        self.original_tb = original_tb
 
     def __str__(self):
         cause = str(self.cause)
         if isinstance(self.cause, Exception):
             cause = 'caught {0}: {1}'.format(type(self.cause), cause)
-        return 'AnyMarkupError: {0}'.format(cause)
+        msg = 'AnyMarkupError: {0}'.format(cause)
+        if self.original_tb:
+            msg += '\nOriginal traceback:\n{0}'.format(self.original_tb)
+        return msg
 
 
 def parse(inp, format=None, encoding='utf-8', force_types=True):
@@ -97,9 +101,7 @@ def parse(inp, format=None, encoding='utf-8', force_types=True):
         res = _do_parse(proper_inp, fmt, encoding, force_types)
     except Exception as e:
         # I wish there was only Python 3 and I could just use "raise ... from e"
-        if six.PY2:
-            traceback.print_exc()
-        raise AnyMarkupError(e)
+        raise AnyMarkupError(e, traceback.format_exc())
     if res is None:
         res = {}
 
@@ -127,9 +129,7 @@ def parse_file(path, format=None, encoding='utf-8', force_types=True):
         with open(path, 'rb') as f:
             return parse(f, format, encoding, force_types)
     except EnvironmentError as e:
-        if six.PY2:
-            traceback.print_exc()
-        raise AnyMarkupError(e)
+        raise AnyMarkupError(e, traceback.format_exc())
 
 
 def serialize(struct, format, target=None, encoding='utf-8'):
@@ -165,9 +165,7 @@ def serialize(struct, format, target=None, encoding='utf-8'):
         else:
             return target.write(serialized)
     except Exception as e:
-        if six.PY2:
-            traceback.print_exc()
-        raise AnyMarkupError(e)
+        raise AnyMarkupError(e, traceback.format_exc())
 
 
 def serialize_file(struct, path, format=None, encoding='utf-8'):
@@ -189,9 +187,7 @@ def serialize_file(struct, path, format=None, encoding='utf-8'):
         with open(path, 'wb') as f:
             return serialize(struct, format, f, encoding)
     except EnvironmentError as e:
-        if six.PY2:
-            traceback.print_exc()
-        raise AnyMarkupError(e)
+        raise AnyMarkupError(e, traceback.format_exc())
 
 
 def _check_lib_installed(fmt, action):
