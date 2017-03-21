@@ -2,7 +2,9 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, tzinfo
+
+from toml import TomlTz
 
 example_ini = u"""\
 [foo]
@@ -128,7 +130,7 @@ example_as_dict = {
 
 toml_example_as_dict = {
     u'foo': {
-        u'dob': datetime(1987, 7, 5, 17, 45),
+        u'dob': datetime(1987, 7, 5, 17, 45, tzinfo=TomlTz('Z')),
         u'name': u'barů'},
     u'spam': {u'ham': [1, 2, 3],
               u'spam': {u'foo': [[u'bar']]},
@@ -202,7 +204,7 @@ types_as_struct_with_objects = {
 
 
 toml_types_as_struct_with_objects = deepcopy(types_as_struct_with_objects)
-toml_types_as_struct_with_objects['x']['c'] = datetime(1987, 7, 5, 17, 45)
+toml_types_as_struct_with_objects['x']['c'] = datetime(1987, 7, 5, 17, 45, tzinfo=TomlTz('Z'))
 
 
 types_as_struct_with_strings = {
@@ -215,4 +217,4 @@ types_as_struct_with_strings = {
 }
 
 toml_types_as_struct_with_strings = deepcopy(types_as_struct_with_strings)
-toml_types_as_struct_with_strings['x']['c'] = '1987-07-05 17:45:00'
+toml_types_as_struct_with_strings['x']['c'] = '1987-07-05 17:45:00+00:00'
