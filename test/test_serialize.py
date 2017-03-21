@@ -75,3 +75,8 @@ class TestSerialize(object):
         f = os.path.join(str(tmpdir), 'foo.ini')
         serialize_file(example_as_dict, f, 'json')
         assert parse(self._read_decode(f)) == example_as_dict
+
+    def test_parse_and_serialize_yaml_multiline_string(self):
+        # https://github.com/bkabrda/anymarkup-core/issues/1
+        inp = b'foo: |-\n  line1\n  line2\n  line3\n'
+        assert serialize(parse(inp), 'yaml') == inp

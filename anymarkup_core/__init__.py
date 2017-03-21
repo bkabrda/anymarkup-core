@@ -483,6 +483,15 @@ def represent_ordereddict(dumper, data):
         values.append(node_item)
     return node
 
+def represent_str(dumper, data):
+    # borrowed from http://stackoverflow.com/a/33300001
+    if len(data.splitlines()) > 1:
+        return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+
 if yaml is not None:
     yaml.SafeLoader.add_constructor(u'tag:yaml.org,2002:omap', construct_ordereddict)
     yaml.SafeDumper.add_representer(collections.OrderedDict, represent_ordereddict)
+    yaml.SafeDumper.add_representer(str, represent_str)
+    if six.PY2:
+        yaml.SafeDumper.add_representer(unicode, represent_str)
