@@ -5,6 +5,7 @@ import os
 
 import pytest
 import six
+import toml
 
 from anymarkup_core import *
 
@@ -89,7 +90,8 @@ class TestParse(object):
         (types_ini, None, {'x': {'a': '1', 'b': '1.1', 'c': 'None', 'd': 'True'}}),
         (types_json, None, {'x': {'a': 1, 'b': 1.1, 'c': None, 'd': True}}),
         (types_json5, 'json5', {'x': {'a': 1, 'b': 1.1, 'c': None, 'd': True}}),
-        (types_toml, 'toml', {'x': {'a': 1, 'b': 1.1, 'c': datetime(1987, 7, 5, 17, 45),
+        (types_toml, 'toml', {'x': {'a': 1, 'b': 1.1,
+                                    'c': datetime(1987, 7, 5, 17, 45, tzinfo=TomlTz('Z')),
                                     'd': True}}),
         (types_xml, None, {'x': {'a': '1', 'b': '1.1', 'c': 'None', 'd': 'True'}}),
         (types_yaml, None, {'x': {'a': 1, 'b': 1.1, 'c': 'None', 'd': True}}),
