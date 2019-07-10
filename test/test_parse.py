@@ -47,6 +47,14 @@ class TestParse(object):
         assert type(parsed) == type(expected)
         self.assert_unicode(parsed)
 
+    def test_parse_interpolation_fail(self):
+        with pytest.raises(AnyMarkupError):
+            parse(example_ini_with_interpolation)
+
+    def test_parse_interpolation_pass_when_false(self):
+        parsed = parse(example_ini_with_interpolation, interpolate=False)
+        assert type(parsed) == dict
+
     @pytest.mark.parametrize(('str', 'expected'), [
         ('# comment', {}),
         ('# comment\n', {}),

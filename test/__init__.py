@@ -4,12 +4,22 @@ from collections import OrderedDict
 from copy import deepcopy
 from datetime import datetime, tzinfo
 
-from toml import TomlTz
+from toml.tz import TomlTz
 
 example_ini = u"""\
 [foo]
 bar = ěšč
 spam = 1
+baz = 1.1
+[[blah]]
+blahblah = True, text4
+nothing = None\
+"""
+
+example_ini_with_interpolation = u"""\
+[foo]
+bar = ěšč
+spam = 1 [%%(test)s]
 baz = 1.1
 [[blah]]
 blahblah = True, text4
@@ -69,7 +79,7 @@ example_xml = u"""\
 \t<spam>1</spam>
 \t<baz>1.1</baz>
 \t<blah>
-\t\t<blahblah>True</blahblah>
+\t\t<blahblah>true</blahblah>
 \t\t<blahblah>text4</blahblah>
 \t\t<nothing></nothing>
 \t</blah>
@@ -127,6 +137,7 @@ example_as_dict = {
          }
     }
 }
+
 
 toml_example_as_dict = {
     u'foo': {
