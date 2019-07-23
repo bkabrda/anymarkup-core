@@ -47,6 +47,33 @@ class TestParse(object):
         assert type(parsed) == type(expected)
         self.assert_unicode(parsed)
 
+    @pytest.mark.parametrize(('str', 'fmt', 'expected'), [
+        ('', None, {}),
+        ('{}', None, {}),
+        ('[]', None, []),
+        (example_ini, None, example_as_dict),
+        (example_json, None, example_as_dict),
+        (example_json5, 'json5', example_as_dict),
+        (example_toml, 'toml', toml_example_as_dict),  # we can't tell toml from ini
+        (example_xml, None, example_as_ordered_dict),
+        (example_yaml_map, None, example_as_dict),
+        (example_yaml_omap, None, example_as_ordered_dict),
+    ])
+    def test_parse_basic_interpolation_is_false(self, str, fmt, expected):
+        parsed = parse(str, fmt, interpolate=False)
+        assert parsed == expected
+        assert type(parsed) == type(expected)
+        self.assert_unicode(parsed)
+
+
+    def test_parse_interpolation_fail(self):
+        with pytest.raises(AnyMarkupError):
+            parse(example_ini_with_interpolation)
+
+    def test_parse_interpolation_pass_when_false(self):
+        parsed = parse(example_ini_with_interpolation, interpolate=False)
+        assert type(parsed) == dict
+
     @pytest.mark.parametrize(('str', 'expected'), [
         ('# comment', {}),
         ('# comment\n', {}),

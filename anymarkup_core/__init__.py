@@ -73,7 +73,7 @@ class AnyMarkupError(Exception):
         return msg
 
 
-def parse(inp, format=None, encoding='utf-8', force_types=True):
+def parse(inp, format=None, encoding='utf-8', force_types=True, interpolate=True):
     """Parse input from file-like object, unicode string or byte string.
 
     Args:
@@ -85,6 +85,7 @@ def parse(inp, format=None, encoding='utf-8', force_types=True):
                 are recognized and returned as proper types instead of strings;
             if `False`, everything is converted to strings
             if `None`, backend return value is used
+        interpolate: turn on interpolation for INI files (defaults to True)
     Returns:
         parsed input (dict or list) containing unicode values
     Raises:
@@ -107,7 +108,7 @@ def parse(inp, format=None, encoding='utf-8', force_types=True):
     proper_inp = six.BytesIO(proper_inp)
 
     try:
-        res = _do_parse(proper_inp, fmt, encoding, force_types)
+        res = _do_parse(proper_inp, fmt, encoding, force_types, interpolate)
     except Exception as e:
         # I wish there was only Python 3 and I could just use "raise ... from e"
         raise AnyMarkupError(e, traceback.format_exc())
@@ -117,7 +118,7 @@ def parse(inp, format=None, encoding='utf-8', force_types=True):
     return res
 
 
-def parse_file(path, format=None, encoding='utf-8', force_types=True):
+def parse_file(path, format=None, encoding='utf-8', force_types=True, interpolate=True):
     """A convenience wrapper of parse, which accepts path of file to parse.
 
     Args:
@@ -129,6 +130,7 @@ def parse_file(path, format=None, encoding='utf-8', force_types=True):
                 are recognized and returned as proper types instead of strings;
             if `False`, everything is converted to strings
             if `None`, backend return value is used
+        interpolate: turn on interpolation for INI files (defaults to True)
     Returns:
         parsed `inp` (dict or list) containing unicode values
     Raises:
@@ -136,7 +138,7 @@ def parse_file(path, format=None, encoding='utf-8', force_types=True):
     """
     try:
         with open(path, 'rb') as f:
-            return parse(f, format, encoding, force_types)
+            return parse(f, format, encoding, force_types, interpolate)
     except EnvironmentError as e:
         raise AnyMarkupError(e, traceback.format_exc())
 
@@ -205,7 +207,7 @@ def _check_lib_installed(fmt, action):
                           format(action=action, fmt=fmt, name=fmt_to_lib[fmt][1]))
 
 
-def _do_parse(inp, fmt, encoding, force_types):
+def _do_parse(inp, fmt, encoding, force_types, interpolate):
     """Actually parse input.
 
     Args:
@@ -217,6 +219,7 @@ def _do_parse(inp, fmt, encoding, force_types):
                 are recognized and returned as proper types instead of strings;
             if `False`, everything is converted to strings
             if `None`, backend return value is used
+        interpolate: turn on interpolation for INI files
     Returns:
         parsed `inp` (dict or list) containing unicode values
     Raises:
@@ -226,7 +229,7 @@ def _do_parse(inp, fmt, encoding, force_types):
     _check_lib_installed(fmt, 'parse')
 
     if fmt == 'ini':
-        cfg = configobj.ConfigObj(inp, encoding=encoding)
+        cfg = configobj.ConfigObj(inp, encoding=encoding, interpolation=interpolate)
         res = cfg.dict()
     elif fmt == 'json':
         if six.PY3:
