@@ -31,7 +31,7 @@ except ImportError:
 
 
 __all__ = ['AnyMarkupError', 'parse', 'parse_file', 'serialize', 'serialize_file']
-__version__ = '0.7.1'
+__version__ = '0.8.0'
 
 
 fmt_to_exts = {'ini': ['ini'],
