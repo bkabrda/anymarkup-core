@@ -435,7 +435,7 @@ def _guess_fmt_from_bytes(inp):
     """
     stripped = inp.strip()
     fmt = None
-    ini_section_header_re = re.compile(b'^\[([\w-]+)\]')
+    ini_section_header_re = re.compile(br'^\[([\w-]+)\]')
 
     if len(stripped) == 0:
         # this can be anything, so choose yaml, for example
