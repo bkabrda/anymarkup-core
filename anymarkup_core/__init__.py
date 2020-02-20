@@ -235,7 +235,9 @@ def _do_parse(inp, fmt, encoding, force_types, interpolate):
         if six.PY3:
             # python 3 json only reads from unicode objects
             inp = io.TextIOWrapper(inp, encoding=encoding)
-        res = json.load(inp, encoding=encoding)
+            res = json.load(inp)
+        else:
+            res = json.load(inp, encoding=encoding)
     elif fmt == 'json5':
         if six.PY3:
             inp = io.TextIOWrapper(inp, encoding=encoding)
@@ -435,7 +437,7 @@ def _guess_fmt_from_bytes(inp):
     """
     stripped = inp.strip()
     fmt = None
-    ini_section_header_re = re.compile(b'^\[([\w-]+)\]')
+    ini_section_header_re = re.compile(br'^\[([\w-]+)\]')
 
     if len(stripped) == 0:
         # this can be anything, so choose yaml, for example
