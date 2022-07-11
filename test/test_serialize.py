@@ -32,7 +32,7 @@ class TestSerialize(object):
         (example_as_dict, 'json'),
         (example_as_dict, 'json5'),
         (toml_example_as_dict, 'toml'),
-        (example_as_ordered_dict, 'xml'),
+        (example_as_dict, 'xml'),
         (example_as_dict, 'yaml'),
         (example_as_ordered_dict, 'yaml'),
     ])
@@ -60,7 +60,7 @@ class TestSerialize(object):
         (example_as_dict, None, 'example.json'),
         (example_as_dict, 'json5', 'example.json5'),
         (toml_example_as_dict, 'toml', 'example.toml'),
-        (example_as_ordered_dict, None, 'example.xml'),
+        (example_as_dict, None, 'example.xml'),
         (example_as_dict, None, 'example.yaml'),
         (example_as_ordered_dict, None, 'example_ordered.yaml'),
     ])

@@ -37,7 +37,7 @@ class TestParse(object):
         (example_json, None, example_as_dict),
         (example_json5, 'json5', example_as_dict),
         (example_toml, 'toml', toml_example_as_dict),  # we can't tell toml from ini
-        (example_xml, None, example_as_ordered_dict),
+        (example_xml, None, example_as_dict),
         (example_yaml_map, None, example_as_dict),
         (example_yaml_omap, None, example_as_ordered_dict),
     ])
@@ -55,7 +55,7 @@ class TestParse(object):
         (example_json, None, example_as_dict),
         (example_json5, 'json5', example_as_dict),
         (example_toml, 'toml', toml_example_as_dict),  # we can't tell toml from ini
-        (example_xml, None, example_as_ordered_dict),
+        (example_xml, None, example_as_dict),
         (example_yaml_map, None, example_as_dict),
         (example_yaml_omap, None, example_as_ordered_dict),
     ])
