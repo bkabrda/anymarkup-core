@@ -3,7 +3,6 @@ import io
 import os
 
 import pytest
-import six
 
 from anymarkup_core import *
 
@@ -21,7 +20,7 @@ class TestSerialize(object):
     fixtures = os.path.join(os.path.dirname(__file__), 'fixtures')
 
     def _read_decode(self, file):
-        if isinstance(file, six.string_types):
+        if isinstance(file, str):
             file = open(file, 'rb')
         else:
             file.seek(0)

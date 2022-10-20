@@ -7,7 +7,6 @@ import os
 import re
 import traceback
 
-import six
 try:
     import configobj
 except ImportError:
@@ -95,7 +94,7 @@ def parse(inp, format=None, encoding='utf-8', force_types=True, interpolate=True
     if hasattr(inp, 'read'):
         proper_inp = inp.read()
     # if proper_inp is unicode, encode it
-    if isinstance(proper_inp, six.text_type):
+    if isinstance(proper_inp, str):
         proper_inp = proper_inp.encode(encoding)
 
     # try to guess markup type
@@ -105,7 +104,7 @@ def parse(inp, format=None, encoding='utf-8', force_types=True, interpolate=True
     fmt = _get_format(format, fname, proper_inp)
 
     # make it look like file-like bytes-yielding object
-    proper_inp = six.BytesIO(proper_inp)
+    proper_inp = io.BytesIO(proper_inp)
 
     try:
         res = _do_parse(proper_inp, fmt, encoding, force_types, interpolate)
@@ -232,22 +231,17 @@ def _do_parse(inp, fmt, encoding, force_types, interpolate):
         cfg = configobj.ConfigObj(inp, encoding=encoding, interpolation=interpolate)
         res = cfg.dict()
     elif fmt == 'json':
-        if six.PY3:
-            # python 3 json only reads from unicode objects
-            inp = io.TextIOWrapper(inp, encoding=encoding)
-            res = json.load(inp)
-        else:
-            res = json.load(inp, encoding=encoding)
+        # python 3 json only reads from unicode objects
+        inp = io.TextIOWrapper(inp, encoding=encoding)
+        res = json.load(inp)
     elif fmt == 'json5':
-        if six.PY3:
-            inp = io.TextIOWrapper(inp, encoding=encoding)
+        inp = io.TextIOWrapper(inp, encoding=encoding)
         res = json5.load(inp, encoding=encoding)
     elif fmt == 'toml':
         if not _is_utf8(encoding):
             raise AnyMarkupError('toml is always utf-8 encoded according to specification')
-        if six.PY3:
-            # python 3 toml prefers unicode objects
-            inp = io.TextIOWrapper(inp, encoding=encoding)
+        # python 3 toml prefers unicode objects
+        inp = io.TextIOWrapper(inp, encoding=encoding)
         res = toml.load(inp)
     elif fmt == 'xml':
         res = xmltodict.parse(inp, encoding=encoding)
@@ -336,9 +330,9 @@ def _ensure_proper_types(struct, encoding, force_types):
         res = []
         for i in struct:
             res.append(_ensure_proper_types(i, encoding, force_types))
-    elif isinstance(struct, six.binary_type):
+    elif isinstance(struct, bytes):
         res = struct.decode(encoding)
-    elif isinstance(struct, (six.text_type, type(None), type(True), six.integer_types, float)):
+    elif isinstance(struct, (str, type(None), type(True), int, float)):
         res = struct
     elif isinstance(struct, datetime.datetime):
         # toml can parse datetime natively
@@ -347,11 +341,11 @@ def _ensure_proper_types(struct, encoding, force_types):
         raise AnyMarkupError('internal error - unexpected type {0} in parsed markup'.
                              format(type(struct)))
 
-    if force_types and isinstance(res, six.text_type):
+    if force_types and isinstance(res, str):
         res = _recognize_basic_types(res)
     elif not (force_types or
-              isinstance(res, (dict, collections.OrderedDict, list, six.text_type))):
-        res = six.text_type(res)
+              isinstance(res, (dict, collections.OrderedDict, list, str))):
+        res = str(res)
 
     return res
 
@@ -361,8 +355,6 @@ def _recognize_basic_types(s):
     to a proper type and return it.
     """
     tps = [int, float]
-    if not six.PY3:  # compat for older versions of six that don't have PY2
-        tps.append(long)
     for tp in tps:
         try:
             return tp(s)
@@ -498,5 +490,3 @@ if yaml is not None:
     yaml.SafeLoader.add_constructor(u'tag:yaml.org,2002:omap', construct_ordereddict)
     yaml.SafeDumper.add_representer(collections.OrderedDict, represent_ordereddict)
     yaml.SafeDumper.add_representer(str, represent_str)
-    if six.PY2:
-        yaml.SafeDumper.add_representer(unicode, represent_str)
