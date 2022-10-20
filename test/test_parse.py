@@ -4,7 +4,6 @@ import io
 import os
 
 import pytest
-import six
 import toml
 
 from anymarkup_core import *
@@ -23,8 +22,8 @@ class TestParse(object):
         elif isinstance(struct, list):
             for i in struct:
                 self.assert_unicode(i)
-        elif isinstance(struct, (six.string_types, type(None), type(True), \
-                six.integer_types, float, datetime)):
+        elif isinstance(struct, (str, type(None), type(True), \
+                int, float, datetime)):
             pass
         else:
             raise AssertionError('Unexpected type {0} in parsed structure'.format(type(struct)))
